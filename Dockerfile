@@ -1,6 +1,16 @@
+# Dockerfile
 FROM node:14
-WORKDIR /app
-COPY . .
+
+# Create app directory
+WORKDIR /usr/src/app
+
+# Install app dependencies
+COPY package*.json ./
 RUN npm install
+
+# Bundle app source
+COPY . .
+
+# Expose the app port
 EXPOSE 3000
 CMD ["npm", "start"]
