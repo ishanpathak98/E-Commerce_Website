@@ -1,56 +1,74 @@
 pipeline {
     agent any
+    environment {
+        DOCKER_REGISTRY = 'your-docker-registry'   // Example: docker.io/username
+        DOCKER_CREDENTIALS_ID = 'docker-credentials' // Jenkins credentials ID
+        GITHUB_REPO = 'https://github.com/your-repo/MSLA.git'
+        FRONTEND_IMAGE = "${DOCKER_REGISTRY}/msla-frontend"
+        BACKEND_IMAGE = "${DOCKER_REGISTRY}/msla-backend"
+    }
     stages {
-        stage('Clone Repository') {
+        stage('Checkout Code') {
             steps {
-                git 'https://github.com/yourusername/MSLA.git'
+                git url: "${env.GITHUB_REPO}", branch: 'main'
             }
         }
-        stage('Build Docker Image') {
+
+        stage('Build Frontend') {
             steps {
-                script {
-                    docker.build('msla-app')
-                }
-            }
-        }
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    def scannerHome = tool 'SonarQubeScanner'
-                    withSonarQubeEnv('SonarQube') {
-                        sh "${scannerHome}/bin/sonar-scanner"
+                dir('frontend') {
+                    script {
+                        sh 'npm install' // Install dependencies
+                        sh 'npm run build' // Build the frontend app
+                        sh "docker build -t ${FRONTEND_IMAGE}:${env.BUILD_ID} ." // Build Docker image for frontend
                     }
                 }
             }
         }
-        stage('Scan with Trivy') {
+
+        stage('Build Backend') {
             steps {
-                script {
-                    sh 'trivy image msla-app'
+                dir('backend') {
+                    script {
+                        sh 'npm install' // Install backend dependencies
+                        sh "docker build -t ${BACKEND_IMAGE}:${env.BUILD_ID} ." // Build Docker image for backend
+                    }
                 }
             }
         }
-        stage('Deploy to Kubernetes') {
+
+        stage('SonarQube Code Quality Check') {
             steps {
                 script {
-                    // Kubernetes deployment steps go here
+                    withSonarQubeEnv('SonarQube') {
+                        sh 'sonar-scanner -Dsonar.projectKey=msla-backend'
+                        sh 'sonar-scanner -Dsonar.projectKey=msla-frontend'
+                    }
                 }
             }
         }
-        stage('Monitoring Setup') {
+
+        stage('Security Scan with Trivy') {
             steps {
                 script {
-                    // Setup Prometheus and Grafana if needed
+                    // Trivy scans for vulnerabilities in Docker images
+                    sh "trivy image ${FRONTEND_IMAGE}:${env.BUILD_ID}"
+                    sh "trivy image ${BACKEND_IMAGE}:${env.BUILD_ID}"
                 }
             }
         }
-    }
-    post {
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed!'
-        }
-    }
-}
+
+        stage('Run Frontend & Backend Tests') {
+            steps {
+                parallel {
+                    stage('Frontend Unit Tests') {
+                        steps {
+                            dir('frontend') {
+                                sh 'npm test' // Run frontend tests
+                            }
+                        }
+                    }
+                    stage('Backend Unit Tests') {
+                        steps {
+                            dir('backend') {
+                                sh 'npm 
