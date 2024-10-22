@@ -1,20 +1,20 @@
 # Use Node.js LTS version
 FROM node:18-alpine
 
-# Set the working directory in the container
+# Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json files
+# Copy package.json and package-lock.json to the container
 COPY package.json package-lock.json ./
 
-# Install dependencies
-RUN npm install
+# Install backend dependencies
+RUN npm install --only=production
 
-# Copy the rest of the app's source code
+# Copy the rest of the backend code to the container
 COPY . .
 
-# Expose the port the app runs on
+# Expose the port the app listens on (default is 8080 for Express)
 EXPOSE 8080
 
-# Start the Node.js app
-CMD ["npm", "start"]
+# Run the backend server in production mode
+CMD ["node", "index.js"]
