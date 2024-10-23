@@ -9,3 +9,38 @@ Afaf
 serine : 
 * i added a font folder to put the new fonts we can need
 *i added a link in public index.html for icons as search bar icon
+
+
+
+
+  1  sudo apt-get install docker-compose.io -y
+    2  sudo apt-get install docker-compose -y
+    3  sudo apt update
+    4  sudo apt install openjdk-11-jdk -y
+    5  wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
+    6  sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+    7  sudo apt update
+    8  sudo apt install jenkins -y
+    9  sudo systemctl start jenkins
+   10  sudo systemctl enable jenkins
+   11  curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+   12  echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+   13  sudo apt-get update
+   14  sudo apt-get install jenkins -y
+   15  docker ps
+   16  sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+   17  docker run -d --name sonar -p 9000:9000 sonarqube:lts-community
+   18  docker ps
+   19  sudo apt-get install wget apt-transport-https gnupg lsb-release
+   20  wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+   21  echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+   22  sudo apt-get update
+   23  sudo apt-get install trivy        
+   24  sudo apt-get update
+   25  sudo apt-get install docker.io -y
+   26  sudo usermod -aG docker $USER  # Replace with your system's username, e.g., 'ubuntu'
+   27  newgrp docker
+   28  curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+   29  sudo apt-get install -y nodejs
+   30  sudo apt-get update -y
+   31  history
